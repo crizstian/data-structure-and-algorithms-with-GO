@@ -18,16 +18,3 @@
 | 10.-    | [Graph Data Structure](./11-chapter-Graphs)                      | 2             | A graph consists of a set of vertices and a set of edges. A map is a type of graph where each town is a vertex, and a road that connects two towns is an edge. Edges are defined as a pair (v1, v2), where v1 and v2 are two vertices in a graph                                                             |
 | 11.-    | [Sorting Algorithms](./12-chapter-Sorting-Algorithms)            | 6             | Two of the most common operations performed on data stored in a computer are sorting and searching.                                                                                                                                                                                                          |
 | 12.-    | [Searching Algorithms](./13-chapter-Searching-Algorithms)        | 6             | There are two ways to search for data in a list: sequential search and binary search. A sequential search is used when the items in a list are in random order; a binary search is used when the items in a list are in sorted order.                                                                        |
-
-### To run the examples we need the following:
-
-- NodeJS Installed
-- Open Any Terminal and position it to the folder where the files are located
-- execute the tests: `$ npm install` then `node_modules/.bin/qunit -t path/test.js -c path/tests.js`
-
-### References
-
-- [Data Structures and Algorithms with JavaScript](http://shop.oreilly.com/product/0636920029557.do)
-- [7 algorithms and data structures every programmer must know](https://codingsec.net/2016/03/7-algorithms-data-structures-every-programmer/)
-
-Some exercises are based from the book [Data Structures and Algorithms with JavaScript](http://shop.oreilly.com/product/0636920029557.do) - [by Michael McMillian (O’Reilly)](http://www.oreilly.com/pub/au/518) ISBN - 978-1-449-36493-9.
