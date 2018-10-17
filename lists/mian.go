@@ -2,174 +2,126 @@ package lists
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"reflect"
 )
 
 // ListInterface ...
 type ListInterface interface {
 	append(element interface{})
-	remove(element interface{})
-	find(element interface{}) (ListInterface, error)
-	contains(element interface{}) bool
-	insert(element interface{}, after int) error
-	end() ListInterface
-	length() int
-	clear() ListInterface
-	next() ListInterface
-	moveTo(pos int) (ListInterface, error)
-	getElement() interface{}
-	isEmpty() bool
+	remove(element interface{}) error
+	// find(element interface{}) (ListInterface, error)
+	// contains(element interface{}) bool
+	// insert(element interface{}, after int) error
+	// end() ListInterface
+	// length() int
+	// clear() ListInterface
+	// next() ListInterface
+	// moveTo(pos int) (ListInterface, error)
+	// getElement() interface{}
+	// isEmpty() bool
+	display()
+}
+
+// Node ...
+type Node struct {
+	next  *Node
+	value interface{}
 }
 
 // List ...
 type List struct {
-	node interface{}
-	link ListInterface
+	root *Node
+	len  int
 }
 
-// clear ...
-func (l *List) clear() ListInterface {
-	return New()
-}
-
+// append ...
 func (l *List) append(element interface{}) {
-	l.link = &List{node: element, link: nil}
-}
-
-func (l *List) next() ListInterface {
-	return l.link
-}
-
-func (l *List) end() ListInterface {
-	var node ListInterface
-	for l.link != nil {
-		node = l.next()
-	}
-	return node
-}
-
-func (l *List) getElement() interface{} {
-	return l.node
-}
-
-func (l *List) isEmpty() bool {
-	if l.link == nil {
-		return true
-	}
-	return false
-}
-
-func (l *List) length() int {
-	curr := l
-	length := 1
-	for curr.next().(*List).link != nil {
-		length++
-		curr = curr.next().(*List)
-	}
-	return length
-}
-
-func (l *List) moveTo(pos int) (ListInterface, error) {
-	if l.length() >= pos {
-		curr := l
-		for i := 1; i == pos; i++ {
-			if i != pos {
-				curr = l.next().(*List)
-			}
-		}
-		return curr, nil
-	}
-	return nil, errors.New("invalid position")
-}
-
-// insert ...
-func (l *List) insert(element interface{}, pos int) error {
-	if l.length() >= pos {
-		curr := l
-		for i := 0; i >= pos; i++ {
-			if i != pos {
-				curr = l.next().(*List)
-			}
-		}
-		node := &List{node: element, link: curr.link}
-		curr.link = node
-
-		return nil
-	}
-	return errors.New("invalid position")
-}
-
-func (l *List) remove(element interface{}) {
-
-	curr := l
-
-	for curr.link != nil {
-		val := reflect.ValueOf(curr.node).Elem()
-		switch val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			if val.Int() == element.(int64) {
-				l = unlink(*curr)
+	node := &Node{value: element, next: nil}
+	if l.root.value == nil {
+		l.root = node
+	} else {
+		last := l.root
+		for {
+			if last.next == nil {
 				break
 			}
-		case reflect.String:
-			if val.String() == element.(string) {
-				l = unlink(*curr)
+			last = last.next
+		}
+		last.next = node
+	}
+	l.len++
+}
+
+func (l *List) remove(element interface{}) error {
+	last := l.root
+	prev := l.root
+	for {
+		if validateElement(last.value, element) {
+			if prev == last {
+				l.root = last.next
+			} else {
+				prev.next = last.next
+			}
+			l.len--
+			return nil
+		}
+		if last.next == nil {
+			break
+		}
+		prev = last
+		last = last.next
+	}
+	return errors.New("No element in the list")
+}
+
+func (l *List) display() {
+	d := ""
+	if l.root.value != nil {
+		last := l.root
+		for {
+			if last.next != nil {
+				d += fmt.Sprintf("%v, ", last.value)
+			}
+			if last.next == nil {
+				d += fmt.Sprintf("%v", last.value)
 				break
 			}
+			last = last.next
 		}
-		curr = curr.link.(*List)
 	}
-}
-
-func (l *List) find(element interface{}) (ListInterface, error) {
-	curr := l
-
-	for curr.link != nil {
-		val := reflect.ValueOf(curr.node).Elem()
-		switch val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			if val.Int() == element.(int64) {
-				return curr, nil
-			}
-		case reflect.String:
-			if val.String() == element.(string) {
-				return curr, nil
-			}
-		}
-		curr = curr.link.(*List)
-	}
-
-	return nil, errors.New("Element not found")
-}
-
-func (l *List) contains(element interface{}) bool {
-	curr := l
-
-	for curr.link != nil {
-		val := reflect.ValueOf(curr.node).Elem()
-		switch val.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			if val.Int() == element.(int64) {
-				return true
-			}
-		case reflect.String:
-			if val.String() == element.(string) {
-				return true
-			}
-		}
-		curr = curr.link.(*List)
-	}
-
-	return false
-}
-
-func unlink(curr List) *List {
-	temp := curr.link
-	curr.link = nil
-	return temp.(*List)
+	log.Println("\n", d)
 }
 
 // New ...
-func New() ListInterface {
-	return &List{node: "Head", link: nil}
+func New() *List {
+	return &List{
+		root: &Node{
+			value: nil,
+			next:  nil,
+		},
+		len: 0,
+	}
+}
+
+func validateElement(node, element interface{}) bool {
+	val := reflect.TypeOf(node)
+	valE := reflect.TypeOf(element)
+	if val != valE {
+		return false
+	}
+
+	switch val.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		if node.(int) == element.(int) {
+			return true
+		}
+	case reflect.String:
+		if node.(string) == element.(string) {
+			return true
+		}
+		// etc...
+	}
+	return false
 }
